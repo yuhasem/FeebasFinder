@@ -97,3 +97,47 @@ function candidatesMatch(candidates, matchInfo) {
 	}
 	return candidates[0].seed;
 }
+
+var CANDIDATES_MEMO = {};
+
+function memoKey(seed, inject) {
+	if (inject < 0 || inject > 8) {
+		inject = -1;
+	}
+	return `${seed},${inject}`;
+}
+
+// The given seed should be the RNG that the Trainer ID came from.
+function candidatesAt(seed) {
+	// Advance 1 for SID, one for frame advance.
+	seed = advanceRng(seed, 2);
+	
+	// There are 45 possible places a VBlank RNG advancement could be injected.
+	// Each yields a potentially different candidates list and we don't know
+	// when this VBlank will happen.
+	// TODO: find out if we can decrease the number of injects we do, or get
+	// rid of duplicates early.
+	for (var inject = 0; inject < 45; inject++) {
+		// We maniplulate inject in each iteration, so we need a copy.
+		var thisInject = inject;
+		var trySeed = seed;
+		candidates = [];
+		// The game generates 5 Candidates and then sorts them.
+		for (var i = 0; i < 5; i++) {
+			var key = memoKey(trySeed, thisInject);
+			var candidate;
+			if (key in CANDIDATES_MEMO) {
+				candidate = CANDIDATES_MEMO[key];
+				trySeed = candidate.seed;
+			} else {
+				candidate = generateCandidate(trySeed, thisInject);
+				CANDIDATES_MEMO[key] = candidate;
+				trySeed = candidate.seed;
+			}
+			candidates.push(candidate.candidate);
+			thisInject -= 9;
+		}
+		candidates.sort(compareCandidates);
+		yield {'seed': trySeed, 'candidates': candidates};
+	}
+}
