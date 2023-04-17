@@ -1,10 +1,15 @@
-var CONDITIONS = ['HOT','EXISTS','EXCESS','APPROVED','HAS','GOOD','LESS','MOMENTUM','GOING','WEIRD','BUSY','TOGETHER','FULL','ABSENT','BEING','NEED','TASTY','SKILLED','NOISY','BIG','LATE','CLOSE','DOCILE','AMUSING','ENTERTAINING','PERFECTION','PRETTY','HEALTHY','EXCELLENT','UPSIDE DOWN','COLD','REFRESHING','UNAVOIDABLE','MUCH','OVERWHELMING','FABULOUS','ELSE','EXPENSIVE','CORRECT','IMPOSSIBLE','SMALL','DIFFERENT','TIRED','SKILL','TOP','NON STOP','PREPOSTEROUS','NONE','NOTHING','NATURAL','BECOMES','LUKEWARM','FAST','LOW','AWFUL','ALONE','BORED','SECRET','MYSTERY','LACKS','BEST','LOUSY','MISTAKE','KIND','WELL','WEAKENED','SIMPLE','SEEMS','BADLY'];
-var LIFESTYLE = ['CHORES','HOME','MONEY','ALLOWANCE','BATH','CONVERSATION','SCHOOL','COMMEMORATE','HABIT','GROUP','WORD','STORE','SERVICE','WORK','SYSTEM','TRAIN','CLASS','LESSONS','INFORMATION','LIVING','TEACHER','TOURNAMENT','LETTER','EVENT','DIGITAL','TEST','DEPT STORE','TELEVISION','PHONE','ITEM','NAME','NEWS','POPULAR','PARTY','STUDY','MACHINE','MAIL','MESSAGE','PROMISE','DREAM','KINDERGARTEN','LIFE','RADIO','RENTAL','WORLD'];
-var HOBBIES = ['IDOL','ANIME','SONG','MOVIE','SWEETS','CHAT','CHILD\'S PLAY','TOYS','MUSIC','CARDS','SHOPPING','CAMERA','VIEWING','SPECTATOR','GOURMET','GAME','RPG','COLLECTION','COMPLETE','MAGAZINE','WALK','BIKE','HOBBY','SPORTS','SOFTWARE','SONGS','DIET','TREASURE','TRAVEL','DANCE','CHANNEL','MAKING','FISHING','DATE','DESIGN','LOCOMOTIVE','PLUSH DOLL','PC','FLOWERS','HERO','NAP','HEROINE','FASHION','ADVENTURE','BOARD','BALL','BOOK','FESTIVAL','COMICS','HOLIDAY','PLANS','TRENDY','VACATION','LOOK'];
+const CONDITIONS = ['HOT','EXISTS','EXCESS','APPROVED','HAS','GOOD','LESS','MOMENTUM','GOING','WEIRD','BUSY','TOGETHER','FULL','ABSENT','BEING','NEED','TASTY','SKILLED','NOISY','BIG','LATE','CLOSE','DOCILE','AMUSING','ENTERTAINING','PERFECTION','PRETTY','HEALTHY','EXCELLENT','UPSIDE DOWN','COLD','REFRESHING','UNAVOIDABLE','MUCH','OVERWHELMING','FABULOUS','ELSE','EXPENSIVE','CORRECT','IMPOSSIBLE','SMALL','DIFFERENT','TIRED','SKILL','TOP','NON STOP','PREPOSTEROUS','NONE','NOTHING','NATURAL','BECOMES','LUKEWARM','FAST','LOW','AWFUL','ALONE','BORED','SECRET','MYSTERY','LACKS','BEST','LOUSY','MISTAKE','KIND','WELL','WEAKENED','SIMPLE','SEEMS','BADLY'];
+const LIFESTYLE = ['CHORES','HOME','MONEY','ALLOWANCE','BATH','CONVERSATION','SCHOOL','COMMEMORATE','HABIT','GROUP','WORD','STORE','SERVICE','WORK','SYSTEM','TRAIN','CLASS','LESSONS','INFORMATION','LIVING','TEACHER','TOURNAMENT','LETTER','EVENT','DIGITAL','TEST','DEPT STORE','TELEVISION','PHONE','ITEM','NAME','NEWS','POPULAR','PARTY','STUDY','MACHINE','MAIL','MESSAGE','PROMISE','DREAM','KINDERGARTEN','LIFE','RADIO','RENTAL','WORLD'];
+const HOBBIES = ['IDOL','ANIME','SONG','MOVIE','SWEETS','CHAT','CHILD\'S PLAY','TOYS','MUSIC','CARDS','SHOPPING','CAMERA','VIEWING','SPECTATOR','GOURMET','GAME','RPG','COLLECTION','COMPLETE','MAGAZINE','WALK','BIKE','HOBBY','SPORTS','SOFTWARE','SONGS','DIET','TREASURE','TRAVEL','DANCE','CHANNEL','MAKING','FISHING','DATE','DESIGN','LOCOMOTIVE','PLUSH DOLL','PC','FLOWERS','HERO','NAP','HEROINE','FASHION','ADVENTURE','BOARD','BALL','BOOK','FESTIVAL','COMICS','HOLIDAY','PLANS','TRENDY','VACATION','LOOK'];
 
 
 function MatchInfo(firstWord, secondWord, extraFirstWord, extraSecondWord,
- lottoNumber, extraWordFirstDay, endSeed) {
+  lottoNumber, extraWordFirstDay, endSeed) {
+	extraFirstWord = extraFirstWord || "";
+	extraSecondWord = extraSecondWord || "";
+	lottoNumber = lottoNumber || -1;
+	endSeed = endSeed || 0;
+
 	this.firstIndex = CONDITIONS.indexOf(firstWord.toUpperCase());
 	if (LIFESTYLE.indexOf(secondWord) >= 0) {
 		this.secondList = 0;
@@ -45,13 +50,13 @@ function candidatesMatch(candidates, matchInfo) {
 		if (matchInfo.extraWordFirstDay) {
 			// Then the extra phrase must be in candidates[0].
 			if (!candidateMatches(candidates[0], matchInfo.extraFirstIndex,
-			  matchInfo.extraSecondList, matchInfo.extraSecondList) {
+			  matchInfo.extraSecondList, matchInfo.extraSecondList)) {
 				return -1;
 			}
 			// And now we need to find the candidate with the primary phrase.
 			for (var i = 0; i < candidates.length; i++) {
-				if candidateMatches(candidates[i], matchInfo.firstIndex,
-				  matchInfo.secondList, matchInfo.secondIndex) {
+				if (candidateMatches(candidates[i], matchInfo.firstIndex,
+				  matchInfo.secondList, matchInfo.secondIndex)) {
 					return candidates[i].seed;
 				}
 			}
@@ -67,11 +72,11 @@ function candidatesMatch(candidates, matchInfo) {
 		primaryFID = -1;
 		for (var i = 0; i < candidates.length; i++) {
 			if (candidateMatches(candidates[i], matchInfo.extraFirstIndex,
-			  matchInfo.extraSecondList, matchInfo.extraSecondIndex) {
+			  matchInfo.extraSecondList, matchInfo.extraSecondIndex)) {
 				extraPhraseFound = true;
 			}
 			if (candidateMatches(candidates[i], matchInfo.firstIndex,
-			  matchInfo.secondList, matchInfo.secondIndex) {
+			  matchInfo.secondList, matchInfo.secondIndex)) {
 				primaryFID = candidates[i].seed;
 			}
 		}
@@ -79,7 +84,7 @@ function candidatesMatch(candidates, matchInfo) {
 	}
 	// In this block we only have one phrase and it must be first day.
 	if (!candidateMatches(candidates[0], matchInfo.firstIndex,
-	  matchInfo.secondList, matchInfo.secondIndex) {
+	  matchInfo.secondList, matchInfo.secondIndex)) {
 		return -1;
 	}
 	// Generate random numbers to see if this lotto number would be
@@ -108,8 +113,9 @@ function memoKey(seed, inject) {
 }
 
 // The given seed should be the RNG that the Trainer ID came from.
-function candidatesAt(seed) {
-	// Advance 1 for SID, one for frame advance.
+// Yields lists of candidates that can be generated from the given seed.
+function* candidatesAt(seed) {
+	// Advance 1 for SID, 1 for frame advance.
 	seed = advanceRng(seed, 2);
 	
 	// There are 45 possible places a VBlank RNG advancement could be injected.
@@ -139,5 +145,218 @@ function candidatesAt(seed) {
 		}
 		candidates.sort(compareCandidates);
 		yield {'seed': trySeed, 'candidates': candidates};
+	}
+}
+
+function findTiles(){
+	var tidElement = document.getElementById("trainer-id");
+	try {
+		var tid = parseInt(tidElement.value);
+	} catch (error) {
+		console.log("Couldn't parse trainer ID");
+		return;
+	}
+	if (tid < 0 || tid >= (1 << 16)) {
+		// TODO: I need an element that can display a user friendly error
+		// message back to the user.
+		console.log("Not a valid trainer ID");
+		return;
+	}
+	var trendyWordOneElement = document.getElementById("trendy-word1");
+	var trendyWord1 = trendyWordOneElement.value;
+	var trendyWordTwoElement = document.getElementById("trendy-word2");
+	var trendyWord2 = trendyWordTwoElement.value;
+	var trendyWordThreeElement = document.getElementById("trendy-word3");
+	var trendyWord3 = trendyWordThreeElement.value;
+	var trendyWordFourElement = document.getElementById("trendy-word4");
+	var trendyWord4 = trendyWordFourElement.value;
+	// TODO: I'd rather make these a drop down or have some other way to do the
+	// validation outside of this.
+	if (CONDITIONS.indexOf(trendyWord1.toUpperCase()) < 0) {
+		console.log("Trendy Word 1 not in Conditions list");
+		return;
+	}
+	if (LIFESTYLE.indexOf(trendyWord2.toUpperCase()) < 0 && HOBBIES.indexOf(trendyWord2.toUpperCase()) < 0) {
+		console.log("Trendy Word 2 not in Lifestyle or Hobbies list");
+		return;
+	}
+	if (trendyWord3 != "" && CONDITIONS.indexOf(trendyWord3.toUpperCase()) < 0) {
+		console.log("Trendy Word 3 not in Conditions list");
+		return;
+	}
+	if (trendyWord4 != "" && LIFESTYLE.indexOf(trendyWord4.toUpperCase()) < 0 && HOBBIES.indexOf(trendyWord4.toUpperCase()) < 0) {
+		console.log("Trendy Word 4 not in Lifestyle or Hobbies list");
+		return;
+	}
+	var extraPhraseIsFirstDay = document.getElementById("extra-first-day").checked;
+	
+	var matchInfo = new MatchInfo(trendyWord1, trendyWord2, trendyWord3, trendyWord4, 0, extraPhraseIsFirstDay, 0);
+	
+	// For each of the 2^16 seeds that could have generated the TID, generate
+	// the possible candidates for that seed, then collect fids that match
+	// the information gathered above.
+	// TODO: It should be possible to get a narrower set of starting seeds
+	// if we know the game started in a reasonable time from power on with a
+	// dry battery.  This should be offered as a feature to save compute time.
+	var topTID = (tid << 16)>>>0;
+	var matches = new Set();
+	for (var i = 0; i < (1 << 16); i++) {
+		console.log(i);
+		var seed = topTID + i;
+		for (candidates of candidatesAt(seed)) {
+			matchInfo.endSeed = candidates.seed;
+			var fid = candidatesMatch(candidates.candidates, matchInfo);
+			if (fid >= 0) {
+				matches.add(fid);
+			}
+		}
+	}
+	// TODO: Surface an error if there were no matches found.
+	
+	// Find the tiles for the possible fids.
+	var seedToTiles = {};
+	var allTiles = new Set();
+	for (var fid of matches) {
+		var tiles = getTilesFromSeed(fid);
+		seedToTiles[fid] = tiles;
+		for (tile of tiles) {
+			allTiles.add(tile);
+		}
+	}
+	
+	// Display the tiles.
+	showTiles(tiles);
+	
+	// And write the list at the end, for easier debugging.
+	writeTiles(seedToTiles);
+}
+
+function Row(start, row, column) {
+	this.start = start;
+	this.row = row;
+	this.column = column;
+}
+
+const rows = [
+	new Row(4, 2, 18),
+	new Row(5, 3, 18),
+	new Row(7, 4, 16),
+	new Row(11, 5, 17),
+	new Row(14, 6, 17),
+	new Row(17, 7, 17),
+	new Row(20, 8, 17),
+	new Row(23, 13, 17),
+	new Row(26, 14, 17),
+	new Row(29, 15, 16),
+	new Row(34, 16, 16),
+	new Row(39, 19, 16),
+	new Row(44, 20, 16),
+	new Row(49, 21, 16),
+	new Row(54, 22, 16),
+	new Row(61, 23, 16),
+	new Row(68, 24, 16),
+	new Row(75, 25, 16),
+	new Row(82, 26, 16),
+	new Row(90, 27, 16),
+	new Row(105, 28, 19),
+	new Row(119, 29, 20),
+	new Row(132, 30, 23),
+	new Row(144, 31, 27),
+	new Row(152, 32, 30),
+	new Row(157, 33, 31),
+	new Row(162, 34, 31),
+	new Row(165, 35, 31),
+	new Row(168, 36, 31),
+	new Row(173, 37, 31),
+	new Row(178, 38, 33),
+	new Row(181, 39, 33),
+	new Row(184, 40, 31),
+	new Row(189, 41, 31),
+	new Row(194, 42, 30),
+	new Row(200, 43, 27),
+	new Row(208, 44, 26),
+	new Row(216, 45, 26),
+	new Row(222, 46, 26),
+	new Row(228, 47, 26),
+	new Row(235, 48, 24),
+	new Row(241, 49, 24),
+	new Row(246, 50, 22),
+	new Row(253, 51, 22),
+	new Row(260, 52, 22),
+	new Row(265, 53, 20),
+	new Row(272, 54, 20),
+	new Row(278, 55, 20),
+	new Row(284, 56, 20),
+	new Row(290, 57, 20),
+	new Row(294, 58, 21),
+	new Row(295, 59, 21),
+	new Row(299, 82, 14),
+	new Row(300, 83, 14),
+	new Row(301, 84, 14),
+	new Row(304, 84, 19),
+	new Row(306, 84, 23),
+	new Row(308, 85, 14),
+	new Row(319, 86, 14),
+	new Row(330, 87, 14),
+	new Row(341, 88, 14),
+	new Row(353, 89, 14),
+	new Row(365, 90, 9),
+	new Row(377, 90, 23),
+	new Row(380, 91, 7),
+	new Row(394, 91, 23),
+	new Row(397, 92, 9),
+	new Row(414, 93, 9),
+	new Row(429, 94, 8),
+	new Row(441, 95, 8),
+	new Row(446, 96, 7),
+];
+const tileSize = 16;
+
+function getCoordinatesForTile(tile) {
+	currentRow = rows[0];
+	for (row of rows) {
+		if (row.start > tile) {
+			break;
+		}
+		currentRow = row;
+	}
+	// x and y as the x and y axes in the html canvas
+	var y = currentRow.row;
+	var x = currentRow.column + (tile - currentRow.start);
+	return {'x': x, 'y': y};
+}
+
+function showTiles(tiles) {
+	const ctx = document.getElementById("canvas").getContext("2d");
+	const img = new Image();
+	img.src = "route.png";
+	img.onload = () => {
+		ctx.drawImage(img, 0, 0);
+		for (tile of tiles) {
+			// black outline with white fill.
+			// TODO: maybe choose different colors for the different seeds?
+			ctx.strokeStyle = "#000000";
+			ctx.fillStyle = "#FFFFFF";
+			ctx.beginPath();
+			var coord = getCoordinatesForTile(tile);
+			var x = tileSize/2 + tileSize*coord.x;
+			var y = tileSize/2 + tileSize*coord.y;
+			ctx.arc(x, y, 0, 2*Math.PI, true);
+			ctx.fill();
+		}
+	}
+}
+
+function writeTiles(seedToTiles) {
+	var listElement = document.getElementById("fid-list");
+	// Clear anything that was there previously.
+	listElement.innerHTML = "";
+	for (seed in seedToTiles) {
+		var line = document.createElement("li");
+		var words = seed.toString(16) + ": ";
+		for (tile of seedToTiles[seed]) {
+			words += tile.toString() + ", ";
+		}
+		line.innerHTML = words;
 	}
 }

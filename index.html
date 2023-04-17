@@ -1,0 +1,47 @@
+<html>
+<head>
+	<title>Feebas Finder</title>
+	<script type="text/javascript" src="fid.js"></script>
+	<script type="text/javascript" src="tiles.js"></script>
+	<script type="text/javascript" src="reverse_fid.js"></script>
+</head>
+<body>
+	<div>
+		<input type="radio" id="ruby" name="game-version" checked>
+		<label for="ruby">Ruby</label>
+		<input type="radio" id="sapphire" name="game-version">
+		<label for="sapphire">Sapphire</label>
+	</div>
+	<div>
+		Trainer ID: 
+		<input type="text" id="trainer-id"></input>
+	</div>
+	Note: Don't change the trendy phrase by giving a new one.  Let it change by passage of time.	
+	<div>
+		Trendy Phrase 1: 
+		<input type="text" id="trendy-word1"></input>
+		<input type="text" id="trendy-word2"></input>
+		(This should be today's trendy phrase)
+	</div>
+	<div>
+		Trendy Phrase 2 (optional): 
+		<input type="text" id="trendy-word3"></input>
+		<input type="text" id="trendy-word4"></input>
+		(This should any trendy phrase on the same file before today)
+	</div>
+	<div>
+		Is the second trendy phrase from the first day the file was created?
+		<input type="checkbox" id="extra-first-day" checked>
+	</div>
+	<div>
+		<input type="button" id="search" value="Find Tiles" onclick="findTiles()"></input>
+		<span id="error-info"></span>
+	</div>
+	<div>
+		<canvas id="canvas" width="640", height="1601"></canvas>
+	</div>
+	<div>
+		<ol id="fid-list"></ol>
+	</div>
+</body>
+</html>

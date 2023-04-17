@@ -25,7 +25,7 @@ function compareCandidates(a, b) {
 // These lists are precomputing what happens when you repeat this multiple
 // times.  The entry at index i is what happens when it's repeated 2^i times.
 // This makes computing many frames in advance more efficient.
-var multiply = [
+const multiply = [
  0x41C64E6D, 0xC2A29A69, 0xEE067F11, 0xCFDDDF21,
  0x5F748241, 0x8B2E1481, 0x76006901, 0x1711D201,
  0xBE67A401, 0xDDDF4801, 0x3FFE9001, 0x90FD2001,
@@ -35,7 +35,7 @@ var multiply = [
  0xA4000001, 0x48000001, 0x90000001, 0x20000001,
  0x40000001, 0x80000001, 0x00000001, 0x00000001];
 
-var add = [
+const add = [
  0x00006073, 0xE97E7B6A, 0x31B0DDE4, 0x67DBB608,
  0xCBA72510, 0x1D29AE20, 0xBA84EC40, 0x79F01880,
  0x08793100, 0x6B566200, 0x803CC400, 0xA6B98800,
@@ -49,7 +49,7 @@ function advanceRng(seed, steps) {
 	var i = 0;
 	while (steps > 0) {
 		if (steps % 2 == 1) {
-			seed = (seed * multiply[i] + add [i]) & 0xFFFFFFFF;
+			seed = ((seed * multiply[i] + add [i])>>>0) & 0xFFFFFFFF;
 		}
 		steps >>= 1
 		i += 1
@@ -88,7 +88,7 @@ function getComparator(seed, injectVBlank) {
 	if (injectVBlank == 4) { seed = advanceRng(seed, 1); }
 	// The game is generating a random number of random numbers using random numbers.
 	// The VBlank injection is what makes this actually random.
-	seed = advanceRng(seed, 1):
+	seed = advanceRng(seed, 1);
 	if (rngTop(seed) % 0x62 > 0x32) {
 		if (injectVBlank == 5) { seed = advanceRng(seed, 1); }
 		seed = advanceRng(seed, 1);
@@ -132,7 +132,7 @@ function generateCandidate(seed, injectVBlank) {
 	seed = trendyWord1.seed;
 	
 	if (injectVBlank == 1) { seed = advanceRng(seed, 1); }
-	seed = rng.advanceRng(seed, 1);
+	seed = advanceRng(seed, 1);
 	nextList = (seed % 2 == 0) ? 0xD : 0xC;
 	
 	if (injectVBlank == 2) { seed = advanceRng(seed, 1); }
@@ -147,5 +147,5 @@ function generateCandidate(seed, injectVBlank) {
 	seed = advanceRng(seed, 1)
 	feebas = rngTop(seed);
 	
-	return {'seed': seed, 'candidate': Candidate(comparator.comparator, feebas, trendyWord1.word, trendyWord2.word);
+	return {'seed': seed, 'candidate': new Candidate(comparator.comparator, feebas, trendyWord1.word, trendyWord2.word)};
 }

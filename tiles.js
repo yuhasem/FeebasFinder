@@ -1,8 +1,8 @@
-var UNFISHABLE = new Set([105,119,132,144,296,297,298]);
+const UNFISHABLE = new Set([105,119,132,144,296,297,298]);
 
 // This uses a different addend than the game's normal RNG function.
 function tileRng(seed) {
-	return (0x41C64E6D * seed + 0x3039) & 0xFFFFFFFF;
+	return ((0x41C64E6D * seed + 0x3039)>>>0) & 0xFFFFFFFF;
 }
 
 function getTilesFromSeed(seed) {
