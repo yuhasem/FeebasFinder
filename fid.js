@@ -21,6 +21,37 @@ function compareCandidates(a, b) {
 	return (b.comparator & 0x3F) - (a.comparator & 0x3F);
 }
 
+// Unsigned 32-bit integer multiplication.  Because god forbid a dynamically
+// typed language ever makes this easy.
+function mult32(a, b) {
+	// Step 1, coerce a and b to unsigend 32 bit integers.
+	// This ensures the top bits are set and interpreted correctly.
+	a = a>>>0;
+	b = b>>>0;
+	// Step 2, extract 16-bit pieces of a and b.  If we try to multiply a and
+	// b as is, JS will coerce back to a floating point Number to fit the
+	// bigger value and end up dropping information in the lower bits.
+	var c = (a & 0xFFFF0000) >> 16;
+	var d = a & 0xFFFF;
+	var e = (b & 0xFFFF0000) >> 16;
+	var f = b & 0xFFFF;
+	// Step 3, multiply the smaller bits together.  They're now small enough
+	// that the intermediate results now fit in 32 bits so JS doesn't lose
+	// information even if tries to coerce back to Number.
+	// Remember grade school long multiplication?
+	//       c   d
+	// *     e   f
+	// -----------
+	//     c*f d*f
+	// c*e e*d   0
+	// -----------
+	// c*f+e*d d*f
+	// We can drop c*e because all of it's info is outside the 32-bt bound.
+	var g = (c*f + d*e) & 0xFFFF;
+	var h = d*f;
+	return (g << 16) + h;
+}
+
 // Every step of RNG works as seed = 0x41C64E6D * seed + 0x6073
 // These lists are precomputing what happens when you repeat this multiple
 // times.  The entry at index i is what happens when it's repeated 2^i times.
@@ -49,10 +80,10 @@ function advanceRng(seed, steps) {
 	var i = 0;
 	while (steps > 0) {
 		if (steps % 2 == 1) {
-			seed = ((seed * multiply[i] + add [i])>>>0) & 0xFFFFFFFF;
+			seed = (mult32(seed, multiply[i]) + add[i]) & 0xFFFFFFFF;
 		}
-		steps >>= 1
-		i += 1
+		steps >>= 1;
+		i++;
 		if (i >= 32) {
 			break
 		}
@@ -70,7 +101,7 @@ var MAX_NUMBERS = [0,0,0,0,0,0,0,0,0,0,0x45,0,0x2D,0x36];
 
 function getTrendyWord(seed, list) {
 	var max = MAX_NUMBERS[list];
-	seed = advanceRng(seed, 1);
+	seed = advanceRng(seed, 1)>>>0;
 	var index = rngTop(seed) % max;
 	var word = ((list & 0x7F) << 9) | (index & 0x1FF);
 	return {'seed': seed, 'word': word};
@@ -80,21 +111,21 @@ function getComparator(seed, injectVBlank) {
 	var comparator = 0x0000;
 	
 	// This one bit gets its own RNG call, no idea why.
-	seed = advanceRng(seed, 1);
+	seed = advanceRng(seed, 1)>>>0;
 	if (rngTop(seed) % 2 == 0) {
 		comparator = 0x0040;
 	}
 	
-	if (injectVBlank == 4) { seed = advanceRng(seed, 1); }
+	if (injectVBlank == 4) { seed = advanceRng(seed, 1)>>>0; }
 	// The game is generating a random number of random numbers using random numbers.
 	// The VBlank injection is what makes this actually random.
-	seed = advanceRng(seed, 1);
+	seed = advanceRng(seed, 1)>>>0;
 	if (rngTop(seed) % 0x62 > 0x32) {
-		if (injectVBlank == 5) { seed = advanceRng(seed, 1); }
-		seed = advanceRng(seed, 1);
+		if (injectVBlank == 5) { seed = advanceRng(seed, 1)>>>0; }
+		seed = advanceRng(seed, 1)>>>0;
 		if (rngTop(seed) % 0x62 > 0x50) {
-			if (injectVBlank == 6) { seed = advanceRng(seed, 1); }
-			seed = advanceRng(seed, 1);
+			if (injectVBlank == 6) { seed = advanceRng(seed, 1)>>>0; }
+			seed = advanceRng(seed, 1)>>>0;
 		}
 	}
 	var rand = (rngTop(seed) % 0x62);
@@ -103,8 +134,8 @@ function getComparator(seed, injectVBlank) {
 	// equivalent for out purposes.
 	comparator |= topRand << 7;
 	
-	if (injectVBlank == 7) { seed = advanceRng(seed, 1); }
-	seed = advanceRng(seed, 1);
+	if (injectVBlank == 7) { seed = advanceRng(seed, 1)>>>0; }
+	seed = advanceRng(seed, 1)>>>0;
 	// Now the game uses the previous random number to set the maximum value for
 	// this next random number.
 	var bottomRand = rngTop(seed) % (rand + 1);
@@ -127,24 +158,24 @@ function getComparator(seed, injectVBlank) {
 function generateCandidate(seed, injectVBlank) {
 	injectVBlank = injectVBlank || -1;
 	
-	if (injectVBlank == 0) { seed = advanceRng(seed, 1); }
+	if (injectVBlank == 0) { seed = advanceRng(seed, 1)>>>0; }
 	trendyWord1 = getTrendyWord(seed, 0xA);
 	seed = trendyWord1.seed;
 	
-	if (injectVBlank == 1) { seed = advanceRng(seed, 1); }
-	seed = advanceRng(seed, 1);
+	if (injectVBlank == 1) { seed = advanceRng(seed, 1)>>>0; }
+	seed = advanceRng(seed, 1)>>>0;
 	nextList = (seed % 2 == 0) ? 0xD : 0xC;
 	
-	if (injectVBlank == 2) { seed = advanceRng(seed, 1); }
+	if (injectVBlank == 2) { seed = advanceRng(seed, 1)>>>0; }
 	trendyWord2 = getTrendyWord(seed, nextList);
 	seed = trendyWord2.seed;
 	
-	if (injectVBlank == 3) { seed = advanceRng(seed, 1); }
+	if (injectVBlank == 3) { seed = advanceRng(seed, 1)>>>0; }
 	comparator = getComparator(seed, injectVBlank);
 	seed = comparator.seed;
 	
-	if (injectVBlank == 8) { seed = advanceRng(seed, 1); }
-	seed = advanceRng(seed, 1)
+	if (injectVBlank == 8) { seed = advanceRng(seed, 1)>>>0; }
+	seed = advanceRng(seed, 1)>>>0;
 	feebas = rngTop(seed);
 	
 	return {'seed': seed, 'candidate': new Candidate(comparator.comparator, feebas, trendyWord1.word, trendyWord2.word)};

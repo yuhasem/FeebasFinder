@@ -97,7 +97,7 @@ function candidatesMatch(candidates, matchInfo) {
 		while (topRng(seed) != matchInfo.lottoNumber) {
 			count++;
 			if (count > 50) return -1;
-			seed = advanceRng(seed, 1);
+			seed = advanceRng(seed, 1)>>>0;
 		}
 	}
 	return candidates[0].seed;
@@ -116,7 +116,7 @@ function memoKey(seed, inject) {
 // Yields lists of candidates that can be generated from the given seed.
 function* candidatesAt(seed) {
 	// Advance 1 for SID, 1 for frame advance.
-	seed = advanceRng(seed, 2);
+	seed = advanceRng(seed, 2)>>>0;
 	
 	// There are 45 possible places a VBlank RNG advancement could be injected.
 	// Each yields a potentially different candidates list and we don't know

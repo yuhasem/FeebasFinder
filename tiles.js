@@ -2,7 +2,7 @@ const UNFISHABLE = new Set([105,119,132,144,296,297,298]);
 
 // This uses a different addend than the game's normal RNG function.
 function tileRng(seed) {
-	return ((0x41C64E6D * seed + 0x3039)>>>0) & 0xFFFFFFFF;
+	return (mult32(0x41C64E6D, seed) + 0x3039) & 0xFFFFFFFF;
 }
 
 function getTilesFromSeed(seed) {
@@ -13,7 +13,7 @@ function getTilesFromSeed(seed) {
 	// The game will generate 6 tiles, but they can be duplicate or
 	// unfishable.
 	while (i < 6) {
-		seed = tileRng(seed);
+		seed = tileRng(seed)>>>0;
 		var tile = ((seed >> 16) & 0xFFFF) % 0x1BF;
 		if (tile == 0) {
 			tile = 447;
