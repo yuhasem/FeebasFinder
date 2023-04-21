@@ -356,7 +356,7 @@ function showTiles(tiles) {
 			var coord = getCoordinatesForTile(tile);
 			var x = tileSize/2 + tileSize*coord.x;
 			var y = tileSize/2 + tileSize*coord.y;
-			ctx.arc(x, y, 0, 2*Math.PI, true);
+			ctx.arc(x, y, tileSize/2, 0, 2*Math.PI, true);
 			ctx.fill();
 		}
 	}
