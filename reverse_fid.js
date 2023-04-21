@@ -19,7 +19,7 @@ function MatchInfo(firstWord, secondWord, extraFirstWord, extraSecondWord,
 		this.secondIndex = HOBBIES.indexOf(secondWord.toUpperCase());
 	}
 
-	this.hasExtraWord = extraFirstWord || extraSecondWord;
+	this.hasExtraPhrase = extraFirstWord || extraSecondWord;
 	this.extraFirstIndex = CONDITIONS.indexOf(extraFirstWord.toUpperCase());
 	if (LIFESTYLE.indexOf(extraSecondWord) >= 0) {
 		this.extraSecondList = 0;
@@ -35,35 +35,48 @@ function MatchInfo(firstWord, secondWord, extraFirstWord, extraSecondWord,
 }
 
 function candidateMatches(candidate, index1, list2, index2) {
-	if (candidate.trendyWord1 & 0x1FF != index1) return false;
+	if ((candidate.trendyWord1 & 0x1FF) != index1) return false;
 	if ((candidate.trendyWord2 >> 9) % 2 != list2) return false;
-	if (candidate.trendyWord2 & 0x1FF != index2) return false;
+	if ((candidate.trendyWord2 & 0x1FF) != index2) return false;
 	return true;
+}
+
+// matchInfo should have |hasExtraPhrase| and |extraWordFirstDay| both set to
+// true.  Returns the Feebas Seed of the candidate which matches the given
+// matchInfo or -1 if the given candidates list doesn't match.
+function candidatesMatchTwoPhrasesOnKnownDay(candidates, matchInfo) {
+	// console.log("checking");
+	// console.log(candidates[0]);
+	// The extra phrase must be in candidates[0].
+	if (!candidateMatches(candidates[0], matchInfo.extraFirstIndex,
+	  matchInfo.extraSecondList, matchInfo.extraSecondIndex)) {
+		// console.log("no match " + matchInfo.extraFirstIndex + ", " + matchInfo.extraSecondIndex);
+		return -1;
+	}
+	// And now we need to find the candidate with the primary phrase.
+	for (var i = 0; i < candidates.length; i++) {
+		if (candidateMatches(candidates[i], matchInfo.firstIndex,
+		  matchInfo.secondList, matchInfo.secondIndex)) {
+			// console.log(candidates[i]);
+			// console.log("match " + matchInfo.firstIndex + ", " + matchInfo.secondIndex);
+			return candidates[i].seed;
+		}
+	}
+	// We ignore lotto number when given an extra phrase.  Lotto numbers are
+	// meaningless past the first day, and to have 2 phrases you must have a
+	// multi-dat file.
+	// console.log("no match");
+	return -1;
 }
 
 // Returns the Feebas Seed of the candidate which matches the given matchInfo,
 // or -1 if the given candidates list doesn't match.
 function candidatesMatch(candidates, matchInfo) {
-	if (matchInfo.hasExtraWord) {
+	if (matchInfo.hasExtraPhrase) {
 		// We treat the primary phrase as corresponding today, i.e. the FID
 		// corresponding to that phrase is the one to use.
 		if (matchInfo.extraWordFirstDay) {
-			// Then the extra phrase must be in candidates[0].
-			if (!candidateMatches(candidates[0], matchInfo.extraFirstIndex,
-			  matchInfo.extraSecondList, matchInfo.extraSecondList)) {
-				return -1;
-			}
-			// And now we need to find the candidate with the primary phrase.
-			for (var i = 0; i < candidates.length; i++) {
-				if (candidateMatches(candidates[i], matchInfo.firstIndex,
-				  matchInfo.secondList, matchInfo.secondIndex)) {
-					return candidates[i].seed;
-				}
-			}
-			// We ignore lotto number when given an extra phrase.  Lotto numbers
-			// are meaningless past the first day, and to have 2 phrases you
-			// must have a multi-day file.
-			return -1;
+			return candidatesMatchTwoPhrasesOnKnownDay(candidates, matchInfo);
 		}
 		// In this block we have an extra phrase given, but we don't know if it
 		// was the phrase on the first day.  Find both phrases, and return the
@@ -134,12 +147,11 @@ function* candidatesAt(seed) {
 			var candidate;
 			if (key in CANDIDATES_MEMO) {
 				candidate = CANDIDATES_MEMO[key];
-				trySeed = candidate.seed;
 			} else {
 				candidate = generateCandidate(trySeed, thisInject);
 				CANDIDATES_MEMO[key] = candidate;
-				trySeed = candidate.seed;
 			}
+			trySeed = candidate.seed;
 			candidates.push(candidate.candidate);
 			thisInject -= 9;
 		}
@@ -207,11 +219,13 @@ function findTiles(){
 			matchInfo.endSeed = candidates.seed;
 			var fid = candidatesMatch(candidates.candidates, matchInfo);
 			if (fid >= 0) {
+				console.log("match from i " + i);
 				matches.add(fid);
 			}
 		}
 	}
 	// TODO: Surface an error if there were no matches found.
+	console.log(matches);
 	
 	// Find the tiles for the possible fids.
 	var seedToTiles = {};
@@ -223,9 +237,10 @@ function findTiles(){
 			allTiles.add(tile);
 		}
 	}
+	console.log(allTiles);
 	
 	// Display the tiles.
-	showTiles(tiles);
+	showTiles(allTiles);
 	
 	// And write the list at the end, for easier debugging.
 	writeTiles(seedToTiles);

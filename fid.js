@@ -92,7 +92,7 @@ function advanceRng(seed, steps) {
 }
 
 // Useful helper function because the game only uses the top 16 bits of RNG.
-function rngTop(value) { return value >> 16; }
+function rngTop(value) { return value >>> 16; }
 
 // The game generates a random number up to a maximum size, determined by
 // indexing this list.  Only the relevant numbers for FID generation are
@@ -102,33 +102,42 @@ var MAX_NUMBERS = [0,0,0,0,0,0,0,0,0,0,0x45,0,0x2D,0x36];
 function getTrendyWord(seed, list) {
 	var max = MAX_NUMBERS[list];
 	seed = advanceRng(seed, 1)>>>0;
+	// console.log("trendy word with list " + list + " and seed " + seed.toString(16));
 	var index = rngTop(seed) % max;
+	// console.log("index " + index);
 	var word = ((list & 0x7F) << 9) | (index & 0x1FF);
 	return {'seed': seed, 'word': word};
 }
 
 function getComparator(seed, injectVBlank) {
-	var comparator = 0x0000;
+	var comparator = 0x40;
 	
 	// This one bit gets its own RNG call, no idea why.
 	seed = advanceRng(seed, 1)>>>0;
-	if (rngTop(seed) % 2 == 0) {
-		comparator = 0x0040;
+	if ((rngTop(seed) & 1) == 0) {
+		comparator = 0;
 	}
+	// console.log("starting comparator " + comparator);
 	
 	if (injectVBlank == 4) { seed = advanceRng(seed, 1)>>>0; }
 	// The game is generating a random number of random numbers using random numbers.
 	// The VBlank injection is what makes this actually random.
 	seed = advanceRng(seed, 1)>>>0;
+	// console.log(seed.toString(16));
 	if (rngTop(seed) % 0x62 > 0x32) {
+		// console.log("continue");
 		if (injectVBlank == 5) { seed = advanceRng(seed, 1)>>>0; }
 		seed = advanceRng(seed, 1)>>>0;
+		// console.log(seed.toString(16));
 		if (rngTop(seed) % 0x62 > 0x50) {
+			// console.log("continue");
 			if (injectVBlank == 6) { seed = advanceRng(seed, 1)>>>0; }
 			seed = advanceRng(seed, 1)>>>0;
+			// console.log(seed.toString(16));
 		}
 	}
 	var rand = (rngTop(seed) % 0x62);
+	// console.log("final rand " + rand.toString(16));
 	var topRand = rand + 0x1E;
 	// Technically the game also does `& 0x7F` to topRand, but this is guranteed
 	// equivalent for out purposes.
@@ -140,6 +149,7 @@ function getComparator(seed, injectVBlank) {
 	// this next random number.
 	var bottomRand = rngTop(seed) % (rand + 1);
 	bottomRand += 0x1E;
+	// console.log("bottom rand " + bottomRand.toString(16));
 	// Again, the game does a `& 0x7F` to bottomRand, and again it's unnecessary.
 	comparator |= bottomRand;
 
@@ -155,16 +165,16 @@ function getComparator(seed, injectVBlank) {
 // See https://github.com/yuhasem/poc_utils/blob/master/tas/notes.md for an
 // explanation of why the RNG injection is necessary to get accurate results.
 // TODO: make a more accessible write up of this.
-function generateCandidate(seed, injectVBlank) {
-	injectVBlank = injectVBlank || -1;
-	
+function generateCandidate(seed, injectVBlank) {	
 	if (injectVBlank == 0) { seed = advanceRng(seed, 1)>>>0; }
 	trendyWord1 = getTrendyWord(seed, 0xA);
 	seed = trendyWord1.seed;
 	
 	if (injectVBlank == 1) { seed = advanceRng(seed, 1)>>>0; }
 	seed = advanceRng(seed, 1)>>>0;
-	nextList = (seed % 2 == 0) ? 0xD : 0xC;
+	// console.log(rngTop(seed).toString(16));
+	nextList = ((rngTop(seed) & 1) == 0) ? 0xD : 0xC;
+	// console.log("picked random list " + nextList);
 	
 	if (injectVBlank == 2) { seed = advanceRng(seed, 1)>>>0; }
 	trendyWord2 = getTrendyWord(seed, nextList);
