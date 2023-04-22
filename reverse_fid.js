@@ -373,5 +373,6 @@ function writeTiles(seedToTiles) {
 			words += tile.toString() + ", ";
 		}
 		line.innerHTML = words;
+		listElement.appendChild(line);
 	}
 }
