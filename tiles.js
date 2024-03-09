@@ -1,3 +1,5 @@
+// These are tiles that the game can generate but which cannot be fished in
+// without the use of glitches to surf on land.
 const UNFISHABLE = new Set([105,119,132,144,296,297,298]);
 
 // This uses a different addend than the game's normal RNG function.
