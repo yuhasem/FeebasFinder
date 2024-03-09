@@ -88,7 +88,8 @@ function advanceRng(seed, steps) {
 			break
 		}
 	}
-	return seed;
+	// Cast to uint32
+	return seed >>> 0;
 }
 
 // Useful helper function because the game only uses the top 16 bits of RNG.
@@ -97,6 +98,10 @@ function rngTop(value) { return value >>> 16; }
 // The game generates a random number up to a maximum size, determined by
 // indexing this list.  Only the relevant numbers for FID generation are
 // populated.
+// These are the lengths of the list of words you can select in dialogues.
+// As it turns out the generated Trendy Phrase is always one word from set
+// 10 (Conditions) and one word from either set 12 or 13 (Lifestyle and
+// Hobbies).
 var MAX_NUMBERS = [0,0,0,0,0,0,0,0,0,0,0x45,0,0x2D,0x36];
 
 function getTrendyWord(seed, list) {

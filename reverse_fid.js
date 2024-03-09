@@ -247,8 +247,11 @@ function findTiles(){
 }
 
 function Row(start, row, column) {
+	// `start` is the tile index at the start of this row.
 	this.start = start;
+	// `row` is the row on the map where this row starts.
 	this.row = row;
+	// `column` is the column on the map where this row starts.
 	this.column = column;
 }
 
