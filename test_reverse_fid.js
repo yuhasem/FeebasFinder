@@ -221,3 +221,36 @@ function testCandidatesMatch() {
 		}
 	}
 }
+
+function testFindAllMatches() {
+	// The previous tests should (mostly) robustly cover edge cases.  These
+	// cases are all from real examples and may not cover all edge cases.
+	// TODO: some bounds on the number of seeds returned?  Obviously if it
+	// returns all seeds then there's 100% recall but 0% precision.
+	var cases = [
+		// {
+			// from the Sapphire POC TAS
+			// tid: 54716,
+			// matchInfo: new MatchInfo("SKILL", "DATE", "", "", undefined, false),
+			// actualSeed: 0x8550,
+		// },
+		// {
+			// It doesn't find anything...
+			// tid: 54815,
+			// matchInfo: new MatchInfo("MISTAKE", "CLASS", "SIMPLE", "LIFE", undefined, true),
+			// actualSeed: 0x860F,
+		// },
+		{
+			// Of course when I record everything works first try.
+			tid: 13901,
+			matchInfo: new MatchInfo("BUSY", "PARTY", "WELL", "HEROINE", undefined, true),
+			actualSeed: 0x24AA,
+		},
+	];
+	for (var c of cases) {
+		var got = findAllMatches(c.tid, c.matchInfo)
+		if (!got.has(c.actualSeed)) {
+			console.log("findAllMatches(" + c.tid + ", " + c.matchInfo + ") = " + got + ", wanted it to contain " + c.actualSeed);
+		}
+	}
+}

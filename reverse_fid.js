@@ -54,6 +54,9 @@ function candidatesMatchTwoPhrasesOnKnownDay(candidates, matchInfo) {
 	}
 	// And now we need to find the candidate with the primary phrase.
 	for (var i = 0; i < candidates.length; i++) {
+		// if (candidates[i].seed === 0x860F) {
+			// console.log(candidates[i]);
+		// }
 		if (candidateMatches(candidates[i], matchInfo.firstIndex,
 		  matchInfo.secondList, matchInfo.secondIndex)) {
 			// console.log(candidates[i]);
@@ -63,7 +66,7 @@ function candidatesMatchTwoPhrasesOnKnownDay(candidates, matchInfo) {
 	}
 	// We ignore lotto number when given an extra phrase.  Lotto numbers are
 	// meaningless past the first day, and to have 2 phrases you must have a
-	// multi-dat file.
+	// multi-date file.
 	// console.log("no match");
 	return -1;
 }
@@ -151,12 +154,41 @@ function* candidatesAt(seed) {
 				CANDIDATES_MEMO[key] = candidate;
 			}
 			trySeed = candidate.seed;
+			// if (candidate.seed === 0x860F) {
+				// console.log(candidate);
+			// }
 			candidates.push(candidate.candidate);
 			thisInject -= 9;
 		}
 		candidates.sort(compareCandidates);
 		yield {'seed': trySeed, 'candidates': candidates};
 	}
+}
+
+function findAllMatches(tid, matchInfo) {
+	// For each of the 2^16 seeds that could have generated the TID, generate
+	// the possible candidates for that seed, then collect fids that match
+	// the information gathered above.
+	// TODO: It should be possible to get a narrower set of starting seeds
+	// if we know the game started in a reasonable time from power on with a
+	// dry battery.  This should be offered as a feature to save compute time.
+	var topTID = (tid << 16)>>>0;
+	var matches = new Set();
+	for (var i = 0; i < (1 << 16); i++) {
+		// TODO: progress bar?
+		// console.log(i);
+		var seed = topTID + i;
+		for (candidates of candidatesAt(seed)) {
+			matchInfo.endSeed = candidates.seed;
+			var fid = candidatesMatch(candidates.candidates, matchInfo);
+			if (fid >= 0) {
+				console.log("match from i " + i);
+				console.log(candidates.candidates);
+				matches.add(fid);
+			}
+		}
+	}
+	return matches
 }
 
 function findTiles(){
@@ -203,26 +235,7 @@ function findTiles(){
 	
 	var matchInfo = new MatchInfo(trendyWord1, trendyWord2, trendyWord3, trendyWord4, 0, extraPhraseIsFirstDay, 0);
 	
-	// For each of the 2^16 seeds that could have generated the TID, generate
-	// the possible candidates for that seed, then collect fids that match
-	// the information gathered above.
-	// TODO: It should be possible to get a narrower set of starting seeds
-	// if we know the game started in a reasonable time from power on with a
-	// dry battery.  This should be offered as a feature to save compute time.
-	var topTID = (tid << 16)>>>0;
-	var matches = new Set();
-	for (var i = 0; i < (1 << 16); i++) {
-		console.log(i);
-		var seed = topTID + i;
-		for (candidates of candidatesAt(seed)) {
-			matchInfo.endSeed = candidates.seed;
-			var fid = candidatesMatch(candidates.candidates, matchInfo);
-			if (fid >= 0) {
-				console.log("match from i " + i);
-				matches.add(fid);
-			}
-		}
-	}
+	matches = findAllMatches(tid, matchInfo);
 	// TODO: Surface an error if there were no matches found.
 	console.log(matches);
 	
