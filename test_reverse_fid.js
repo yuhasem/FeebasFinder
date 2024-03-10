@@ -228,12 +228,12 @@ function testFindAllMatches() {
 	// TODO: some bounds on the number of seeds returned?  Obviously if it
 	// returns all seeds then there's 100% recall but 0% precision.
 	var cases = [
-		// {
+		{
 			// from the Sapphire POC TAS
-			// tid: 54716,
-			// matchInfo: new MatchInfo("SKILL", "DATE", "", "", undefined, false),
-			// actualSeed: 0x8550,
-		// },
+			tid: 54716,
+			matchInfo: new MatchInfo("SKILL", "DATE", "", "", undefined, false),
+			actualSeed: 0x8550,
+		},
 		// {
 			// It doesn't find anything...
 			// tid: 54815,
@@ -245,6 +245,16 @@ function testFindAllMatches() {
 			tid: 13901,
 			matchInfo: new MatchInfo("BUSY", "PARTY", "WELL", "HEROINE", undefined, true),
 			actualSeed: 0x24AA,
+		},
+		{
+			tid: 15838,
+			matchInfo: new MatchInfo("LATE", "MAGAZINE", "MUCH", "LOOK", undefined, true),
+			actualSeed: 0x6E0D,
+		},
+		{
+			tid: 4168,
+			matchInfo: new MatchInfo("NOTHING", "SHOPPING", "BIG", "BIKE", undefined, true),
+			actualSeed: 0x6884,
 		},
 	];
 	for (var c of cases) {
