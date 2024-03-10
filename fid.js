@@ -106,7 +106,7 @@ var MAX_NUMBERS = [0,0,0,0,0,0,0,0,0,0,0x45,0,0x2D,0x36];
 
 function getTrendyWord(seed, list) {
 	var max = MAX_NUMBERS[list];
-	seed = advanceRng(seed, 1)>>>0;
+	seed = advanceRng(seed, 1);
 	// console.log("trendy word with list " + list + " and seed " + seed.toString(16));
 	var index = rngTop(seed) % max;
 	// console.log("index " + index);
@@ -118,26 +118,26 @@ function getComparator(seed, injectVBlank) {
 	var comparator = 0x40;
 	
 	// This one bit gets its own RNG call, no idea why.
-	seed = advanceRng(seed, 1)>>>0;
+	seed = advanceRng(seed, 1);
 	if ((rngTop(seed) & 1) == 0) {
 		comparator = 0;
 	}
 	// console.log("starting comparator " + comparator);
 	
-	if (injectVBlank == 4) { seed = advanceRng(seed, 1)>>>0; }
+	if (injectVBlank == 4) { seed = advanceRng(seed, 1); }
 	// The game is generating a random number of random numbers using random numbers.
 	// The VBlank injection is what makes this actually random.
-	seed = advanceRng(seed, 1)>>>0;
+	seed = advanceRng(seed, 1);
 	// console.log(seed.toString(16));
 	if (rngTop(seed) % 0x62 > 0x32) {
 		// console.log("continue");
-		if (injectVBlank == 5) { seed = advanceRng(seed, 1)>>>0; }
-		seed = advanceRng(seed, 1)>>>0;
+		if (injectVBlank == 5) { seed = advanceRng(seed, 1); }
+		seed = advanceRng(seed, 1);
 		// console.log(seed.toString(16));
 		if (rngTop(seed) % 0x62 > 0x50) {
 			// console.log("continue");
-			if (injectVBlank == 6) { seed = advanceRng(seed, 1)>>>0; }
-			seed = advanceRng(seed, 1)>>>0;
+			if (injectVBlank == 6) { seed = advanceRng(seed, 1); }
+			seed = advanceRng(seed, 1);
 			// console.log(seed.toString(16));
 		}
 	}
@@ -148,8 +148,8 @@ function getComparator(seed, injectVBlank) {
 	// equivalent for out purposes.
 	comparator |= topRand << 7;
 	
-	if (injectVBlank == 7) { seed = advanceRng(seed, 1)>>>0; }
-	seed = advanceRng(seed, 1)>>>0;
+	if (injectVBlank == 7) { seed = advanceRng(seed, 1); }
+	seed = advanceRng(seed, 1);
 	// Now the game uses the previous random number to set the maximum value for
 	// this next random number.
 	var bottomRand = rngTop(seed) % (rand + 1);

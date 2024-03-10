@@ -4,11 +4,10 @@ const HOBBIES = ['IDOL','ANIME','SONG','MOVIE','SWEETS','CHAT','CHILD\'S PLAY','
 
 
 function MatchInfo(firstWord, secondWord, extraFirstWord, extraSecondWord,
-  lottoNumber, extraWordFirstDay, endSeed) {
+  lottoNumber, extraWordFirstDay) {
 	extraFirstWord = extraFirstWord || "";
 	extraSecondWord = extraSecondWord || "";
 	lottoNumber = lottoNumber || -1;
-	endSeed = endSeed || 0;
 
 	this.firstIndex = CONDITIONS.indexOf(firstWord.toUpperCase());
 	if (LIFESTYLE.indexOf(secondWord) >= 0) {
@@ -19,7 +18,7 @@ function MatchInfo(firstWord, secondWord, extraFirstWord, extraSecondWord,
 		this.secondIndex = HOBBIES.indexOf(secondWord.toUpperCase());
 	}
 
-	this.hasExtraPhrase = extraFirstWord || extraSecondWord;
+	this.hasExtraPhrase = extraFirstWord && extraSecondWord;
 	this.extraFirstIndex = CONDITIONS.indexOf(extraFirstWord.toUpperCase());
 	if (LIFESTYLE.indexOf(extraSecondWord) >= 0) {
 		this.extraSecondList = 0;
@@ -30,7 +29,7 @@ function MatchInfo(firstWord, secondWord, extraFirstWord, extraSecondWord,
 	}
 	
 	this.lottoNumber = lottoNumber;
-	this.endSeed = endSeed;
+	this.endSeed = 0;
 	this.extraWordFirstDay = extraWordFirstDay;
 }
 
@@ -107,7 +106,7 @@ function candidatesMatch(candidates, matchInfo) {
 	if (matchInfo.lottoNumber >= 0) {
 		var count = 0;
 		var seed = matchInfo.endSeed;
-		while (topRng(seed) != matchInfo.lottoNumber) {
+		while (rngTop(seed) != matchInfo.lottoNumber) {
 			count++;
 			if (count > 50) return -1;
 			seed = advanceRng(seed, 1)>>>0;
