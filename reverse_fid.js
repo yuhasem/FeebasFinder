@@ -8,24 +8,29 @@ function MatchInfo(firstWord, secondWord, extraFirstWord, extraSecondWord,
 	extraFirstWord = extraFirstWord || "";
 	extraSecondWord = extraSecondWord || "";
 	lottoNumber = lottoNumber || -1;
+	
+	firstWord = firstWord.toUpperCase();
+	secondWord = secondWord.toUpperCase();
+	extraFirstWord = extraFirstWord.toUpperCase();
+	extraSecondWord = extraSecondWord.toUpperCase();
 
-	this.firstIndex = CONDITIONS.indexOf(firstWord.toUpperCase());
+	this.firstIndex = CONDITIONS.indexOf(firstWord);
 	if (LIFESTYLE.indexOf(secondWord) >= 0) {
 		this.secondList = 0;
-		this.secondIndex = LIFESTYLE.indexOf(secondWord.toUpperCase());
+		this.secondIndex = LIFESTYLE.indexOf(secondWord);
 	} else {
 		this.secondList = 1;
-		this.secondIndex = HOBBIES.indexOf(secondWord.toUpperCase());
+		this.secondIndex = HOBBIES.indexOf(secondWord);
 	}
 
 	this.hasExtraPhrase = extraFirstWord && extraSecondWord;
-	this.extraFirstIndex = CONDITIONS.indexOf(extraFirstWord.toUpperCase());
+	this.extraFirstIndex = CONDITIONS.indexOf(extraFirstWord);
 	if (LIFESTYLE.indexOf(extraSecondWord) >= 0) {
 		this.extraSecondList = 0;
-		this.extraSecondIndex = LIFESTYLE.indexOf(extraSecondWord.toUpperCase());
+		this.extraSecondIndex = LIFESTYLE.indexOf(extraSecondWord);
 	} else {
 		this.extraSecondList = 1;
-		this.extraSecondIndex = HOBBIES.indexOf(extraSecondWord.toUpperCase());
+		this.extraSecondIndex = HOBBIES.indexOf(extraSecondWord);
 	}
 	
 	this.lottoNumber = lottoNumber;

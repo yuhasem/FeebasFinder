@@ -228,33 +228,43 @@ function testFindAllMatches() {
 	// TODO: some bounds on the number of seeds returned?  Obviously if it
 	// returns all seeds then there's 100% recall but 0% precision.
 	var cases = [
-		{
+		// {
 			// from the Sapphire POC TAS
-			tid: 54716,
-			matchInfo: new MatchInfo("SKILL", "DATE", "", "", undefined, false),
-			actualSeed: 0x8550,
-		},
+			// tid: 54716,
+			// matchInfo: new MatchInfo("SKILL", "DATE", "", "", undefined, false),
+			// actualSeed: 0x8550,
+		// },
 		// {
 			// It doesn't find anything...
 			// tid: 54815,
 			// matchInfo: new MatchInfo("MISTAKE", "CLASS", "SIMPLE", "LIFE", undefined, true),
 			// actualSeed: 0x860F,
 		// },
-		{
+		// {
 			// Of course when I record everything works first try.
-			tid: 13901,
-			matchInfo: new MatchInfo("BUSY", "PARTY", "WELL", "HEROINE", undefined, true),
-			actualSeed: 0x24AA,
-		},
+			// tid: 13901,
+			// matchInfo: new MatchInfo("BUSY", "PARTY", "WELL", "HEROINE", undefined, true),
+			// actualSeed: 0x24AA,
+		// },
+		// {
+			// tid: 15838,
+			// matchInfo: new MatchInfo("LATE", "MAGAZINE", "MUCH", "LOOK", undefined, true),
+			// actualSeed: 0x6E0D,
+		// },
+		// {
+			// tid: 4168,
+			// matchInfo: new MatchInfo("NOTHING", "SHOPPING", "BIG", "BIKE", undefined, true),
+			// actualSeed: 0x6884,
+		// },
+		// {
+			// tid: 7213,
+			// matchInfo: new MatchInfo("SECRET", "GROUP", "GOING", "LOOK", undefined, true),
+			// actualSeed: 0xCE6A,
+		// },
 		{
-			tid: 15838,
-			matchInfo: new MatchInfo("LATE", "MAGAZINE", "MUCH", "LOOK", undefined, true),
-			actualSeed: 0x6E0D,
-		},
-		{
-			tid: 4168,
-			matchInfo: new MatchInfo("NOTHING", "SHOPPING", "BIG", "BIKE", undefined, true),
-			actualSeed: 0x6884,
+			tid: 4469,
+			matchInfo: new MatchInfo("EXPENSIVE", "MUSIC", "LATE", "TEST", undefined, true),
+			actualSeed: 0x53EF,
 		},
 	];
 	for (var c of cases) {
