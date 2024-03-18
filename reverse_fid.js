@@ -4,7 +4,7 @@ const HOBBIES = ['IDOL','ANIME','SONG','MOVIE','SWEETS','CHAT','CHILD\'S PLAY','
 
 
 function MatchInfo(firstWord, secondWord, extraFirstWord, extraSecondWord,
-  lottoNumber, extraWordFirstDay) {
+  lottoNumber, extraWordFirstDay, dryBattery, version) {
 	extraFirstWord = extraFirstWord || "";
 	extraSecondWord = extraSecondWord || "";
 	lottoNumber = lottoNumber || -1;
@@ -36,6 +36,8 @@ function MatchInfo(firstWord, secondWord, extraFirstWord, extraSecondWord,
 	this.lottoNumber = lottoNumber;
 	this.endSeed = 0;
 	this.extraWordFirstDay = extraWordFirstDay;
+	this.dryBattery = dryBattery;
+	this.version = version;
 }
 
 function candidateMatches(candidate, index1, list2, index2) {
@@ -196,6 +198,11 @@ function findAllMatches(tid, matchInfo) {
 	return matches
 }
 
+const UNKNOWN_VERSION = "U";
+const RUBY = "R";
+const SAPPHIRE = "S";
+const EMERALD = "E";
+
 function findTiles(){
 	var tidElement = document.getElementById("trainer-id");
 	try {
@@ -210,14 +217,38 @@ function findTiles(){
 		console.log("Not a valid trainer ID");
 		return;
 	}
+	var dryBattery = document.getElementById("dry-battery").checked;
 	var trendyWordOneElement = document.getElementById("trendy-word1");
 	var trendyWord1 = trendyWordOneElement.value;
 	var trendyWordTwoElement = document.getElementById("trendy-word2");
 	var trendyWord2 = trendyWordTwoElement.value;
-	var trendyWordThreeElement = document.getElementById("trendy-word3");
-	var trendyWord3 = trendyWordThreeElement.value;
-	var trendyWordFourElement = document.getElementById("trendy-word4");
-	var trendyWord4 = trendyWordFourElement.value;
+
+	var version = UNKNOWN_VERSION;
+	if (dryBattery) {
+		// Explicitly set these to empty so they don't interfere with anything.
+		trendyWord3 = "";
+		trendyWord4 = "";
+		versionInputs = document.getElementsByName("game-version");
+		for (v of versionInputs) {
+			if (v.checked) {
+				switch (v.id) {
+					case "ruby":
+					version = RUBY;
+					break;
+					case "sapphire":
+					version = SAPPHIRE;
+					break;
+					default:
+					version = UNKNOWN_VERSION;
+				}
+			}
+		}
+	} else {
+		var trendyWordThreeElement = document.getElementById("trendy-word3");
+		var trendyWord3 = trendyWordThreeElement.value;
+		var trendyWordFourElement = document.getElementById("trendy-word4");
+		var trendyWord4 = trendyWordFourElement.value;
+	}
 	// TODO: I'd rather make these a drop down or have some other way to do the
 	// validation outside of this.
 	if (CONDITIONS.indexOf(trendyWord1.toUpperCase()) < 0) {
@@ -238,7 +269,8 @@ function findTiles(){
 	}
 	var extraPhraseIsFirstDay = document.getElementById("extra-first-day").checked;
 	
-	var matchInfo = new MatchInfo(trendyWord1, trendyWord2, trendyWord3, trendyWord4, 0, extraPhraseIsFirstDay, 0);
+	var matchInfo = new MatchInfo(trendyWord1, trendyWord2, trendyWord3, trendyWord4,
+		0, extraPhraseIsFirstDay, 0, dryBattery, version);
 	
 	matches = findAllMatches(tid, matchInfo);
 	// TODO: Surface an error if there were no matches found.
