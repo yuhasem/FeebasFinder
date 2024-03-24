@@ -172,27 +172,67 @@ function* candidatesAt(seed) {
 	}
 }
 
+function findMatchesForSeed(seed, matchInfo) {
+	var matches = new Set();
+	for (candidates of candidatesAt(seed)) {
+		matchInfo.endSeed = candidates.seed;
+		var fid = candidatesMatch(candidates.candidates, matchInfo);
+		if (fid >= 0) {
+			console.log("match from seed " + seed);
+			console.log(candidates.candidates);
+			matches.add(fid);
+		}
+	}
+	return matches;
+}
+
 function findAllMatches(tid, matchInfo) {
+	var matches = new Set();
+	// When the battery is dry, there's a much smaller set of seeds that we
+	// have to check, assuming you go through the opening fairly quickly.
+	// TODO: tune the amount of leeway given by the seed search?  Possibly
+	// separate into speed running and casual modes.
+	if (matchInfo.dryBattery) {
+		console.log("DRY")
+		var seedList = [];
+		switch (matchInfo.version) {
+			case RUBY:
+			seedList = RUBY_SEEDS[tid];
+			break;
+			case SAPPHIRE:
+			seedList = SAPPHIRE_SEEDS[tid];
+			break;
+			default:
+			seedList = [];
+		}
+		if (seedList.length > 0) {
+			for (seed of seedList) {
+				for (match of findMatchesForSeed(seed, matchInfo)) {
+					matches.add(match);
+				}
+			}
+			if (matches.size > 0) {
+				return matches;
+			}
+		}
+		// Intentionally fallthrough to default. Either the TID provided wasn't
+		// found in the pre-cached list, or the seed that generated wasn't in
+		// that list.  Better to show some results slowly than no results.
+	}
 	// For each of the 2^16 seeds that could have generated the TID, generate
 	// the possible candidates for that seed, then collect fids that match
 	// the information gathered above.
 	// TODO: It should be possible to get a narrower set of starting seeds
 	// if we know the game started in a reasonable time from power on with a
 	// dry battery.  This should be offered as a feature to save compute time.
+	console.log("WET")
 	var topTID = (tid << 16)>>>0;
-	var matches = new Set();
 	for (var i = 0; i < (1 << 16); i++) {
 		// TODO: progress bar?
 		// console.log(i);
 		var seed = topTID + i;
-		for (candidates of candidatesAt(seed)) {
-			matchInfo.endSeed = candidates.seed;
-			var fid = candidatesMatch(candidates.candidates, matchInfo);
-			if (fid >= 0) {
-				console.log("match from i " + i);
-				console.log(candidates.candidates);
-				matches.add(fid);
-			}
+		for (match of findMatchesForSeed(seed, matchInfo)) {
+			matches.add(match);
 		}
 	}
 	return matches
@@ -270,7 +310,7 @@ function findTiles(){
 	var extraPhraseIsFirstDay = document.getElementById("extra-first-day").checked;
 	
 	var matchInfo = new MatchInfo(trendyWord1, trendyWord2, trendyWord3, trendyWord4,
-		0, extraPhraseIsFirstDay, 0, dryBattery, version);
+		0, extraPhraseIsFirstDay, dryBattery, version);
 	
 	matches = findAllMatches(tid, matchInfo);
 	// TODO: Surface an error if there were no matches found.

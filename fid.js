@@ -145,14 +145,14 @@ function getComparator(seed, injectVBlank) {
 	// console.log("final rand " + rand.toString(16));
 	var topRand = rand + 0x1E;
 	// Technically the game also does `& 0x7F` to topRand, but this is guranteed
-	// equivalent for out purposes.
+	// equivalent for our purposes.
 	comparator |= topRand << 7;
 	
 	if (injectVBlank == 7) { seed = advanceRng(seed, 1); }
 	seed = advanceRng(seed, 1);
 	// Now the game uses the previous random number to set the maximum value for
 	// this next random number.
-	var bottomRand = rngTop(seed) % (rand + 1);
+	var bottomRand = rngTop(seed) % (rand + 1); // The game uses a different remainder function here, is there an edge case I missed?
 	bottomRand += 0x1E;
 	// console.log("bottom rand " + bottomRand.toString(16));
 	// Again, the game does a `& 0x7F` to bottomRand, and again it's unnecessary.
