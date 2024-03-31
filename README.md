@@ -1,19 +1,24 @@
 # FeebasFinder
 
-A tool to find which tiles you can get Feebas from
+A tool to find which tiles you can get Feebas from in Ruby and Sapphire.
+(Emerald planned, but not ready.)
 
 [Click here to go the tool](https://yuhasem.github.io/FeebasFinder/)
 
-Note that this is still a work in progress, and there are known inputs that
-will not produce the correct results.  If you find one, file a bug report with
-as much information as you can (what those inputs were, and ideally a tile that
+Note that there may still be bugs.  If you find one, file a bug report with
+as much information as you can (what the inputs were, and ideally a tile that
 did have Feebas, and bonus points if you recorded inputs so the exact RNG
 during the opening of the game can be replayed).  This should work on hardware,
 but has not been tested for it yet.
 
-It generally takes about 1-2 minutes to complete the search.  This can be
-reduced when the battery is dry, and there is a plan to make that part of the
-configuration.
+When using a dry battery, results should be returned quickly unless you played
+the start of the game very slow.
+
+When using wet battery or where dry battery had to fall back because it
+couldn't match your starting RNG seed, results will take 1-2 minutes to return.
+With no second phrase, there will also be 60 or more Feebas seeds which might
+narrow down only half the river.  Some seeds are more likely than others, and
+a planned improvement is to show this likelihood.
 
 ## How does it work?
 
@@ -41,8 +46,10 @@ there are 65536 starting RNG seeds which will yield the same TID, and there are
 6831 possible Trendy Phrases, only providing 1 Trendy Phrase will find multiple
 possible FIDs.
 
-Taking into account a dry battery will limit the starting RNG seeds for each
-TID, and there is a plan to make that part of the configuration.
+Taking into account a dry battery limits the potential RNG seeds that can
+generate the TID.  This speeds up the search and returns more precise results,
+at the expense that you can no longer see a second trendy phrase to narrow
+reults even further.
 
 ## The nitty-gritty technical details
 
