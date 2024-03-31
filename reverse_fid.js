@@ -197,10 +197,10 @@ function findAllMatches(tid, matchInfo) {
 		var seedList = [];
 		switch (matchInfo.version) {
 			case RUBY:
-			seedList = RUBY_SEEDS[tid];
+			seedList = RS_SEEDS[tid];
 			break;
 			case SAPPHIRE:
-			seedList = SAPPHIRE_SEEDS[tid];
+			seedList = RS_SEEDS[tid];
 			break;
 			default:
 			console.log("taking default");

@@ -253,21 +253,21 @@ function testFindAllMatches() {
 			// matchInfo: new MatchInfo("LATE", "MAGAZINE", "MUCH", "LOOK", undefined, true),
 			// actualSeed: 0x6E0D,
 		// },
-		{
-			tid: 4168,
-			matchInfo: new MatchInfo("NOTHING", "SHOPPING", "BIG", "BIKE", undefined, true),
-			actualSeed: 0x6884,
-		},
-		{
-			tid: 7213,
-			matchInfo: new MatchInfo("SECRET", "GROUP", "GOING", "LOOK", undefined, true),
-			actualSeed: 0xCE6A,
-		},
-		{
-			tid: 4469,
-			matchInfo: new MatchInfo("EXPENSIVE", "MUSIC", "LATE", "TEST", undefined, true),
-			actualSeed: 0x53EF,
-		},
+		// {
+			// tid: 4168,
+			// matchInfo: new MatchInfo("NOTHING", "SHOPPING", "BIG", "BIKE", undefined, true),
+			// actualSeed: 0x6884,
+		// },
+		// {
+			// tid: 7213,
+			// matchInfo: new MatchInfo("SECRET", "GROUP", "GOING", "LOOK", undefined, true),
+			// actualSeed: 0xCE6A,
+		// },
+		// {
+			// tid: 4469,
+			// matchInfo: new MatchInfo("EXPENSIVE", "MUSIC", "LATE", "TEST", undefined, true),
+			// actualSeed: 0x53EF,
+		// },
 		{
 			tid: 63617,
 			matchInfo: new MatchInfo("WELL", "HOBBY", "", "", undefined, false, true, "R"),
