@@ -178,8 +178,8 @@ function findMatchesForSeed(seed, matchInfo) {
 		matchInfo.endSeed = candidates.seed;
 		var fid = candidatesMatch(candidates.candidates, matchInfo);
 		if (fid >= 0) {
-			console.log("match from seed " + seed);
-			console.log(candidates.candidates);
+			// console.log("match from seed " + seed);
+			// console.log(candidates.candidates);
 			matches.add(fid);
 		}
 	}
@@ -203,6 +203,7 @@ function findAllMatches(tid, matchInfo) {
 			seedList = SAPPHIRE_SEEDS[tid];
 			break;
 			default:
+			console.log("taking default");
 			seedList = [];
 		}
 		if (seedList.length > 0) {
@@ -314,7 +315,7 @@ function findTiles(){
 	
 	matches = findAllMatches(tid, matchInfo);
 	// TODO: Surface an error if there were no matches found.
-	console.log(matches);
+	// console.log(matches);
 	
 	// Find the tiles for the possible fids.
 	var seedToTiles = {};
@@ -326,7 +327,7 @@ function findTiles(){
 			allTiles.add(tile);
 		}
 	}
-	console.log(allTiles);
+	// console.log(allTiles);
 	
 	// Display the tiles.
 	showTiles(allTiles);

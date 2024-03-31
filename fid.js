@@ -15,10 +15,10 @@ Candidate.prototype.debugString = function () {
 
 // compareFn to be used when sorting an array of Candidates
 function compareCandidates(a, b) {
-	if (a.comparator & 0x3F == b.comparator & 0x3F) {
+	if (a.comparator & 0x7F == b.comparator & 0x7F) {
 		return (b.comparator >> 7) - (a.comparator >> 7); 
 	}
-	return (b.comparator & 0x3F) - (a.comparator & 0x3F);
+	return (b.comparator & 0x7F) - (a.comparator & 0x7F);
 }
 
 // Unsigned 32-bit integer multiplication.  Because god forbid a dynamically
@@ -115,7 +115,7 @@ function getTrendyWord(seed, list) {
 }
 
 function getComparator(seed, injectVBlank) {
-	var comparator = 0x40;
+	var comparator = 0x4000;
 	
 	// This one bit gets its own RNG call, no idea why.
 	seed = advanceRng(seed, 1);
