@@ -1,3 +1,11 @@
 #dry-battery:checked ~ #phrase2 {
 	display: none;
 }
+
+.route-img {
+	float: left;
+}
+
+.fid-list {
+	float: left;
+}
