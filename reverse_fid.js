@@ -2,6 +2,9 @@ const CONDITIONS = ['HOT','EXISTS','EXCESS','APPROVED','HAS','GOOD','LESS','MOME
 const LIFESTYLE = ['CHORES','HOME','MONEY','ALLOWANCE','BATH','CONVERSATION','SCHOOL','COMMEMORATE','HABIT','GROUP','WORD','STORE','SERVICE','WORK','SYSTEM','TRAIN','CLASS','LESSONS','INFORMATION','LIVING','TEACHER','TOURNAMENT','LETTER','EVENT','DIGITAL','TEST','DEPT STORE','TELEVISION','PHONE','ITEM','NAME','NEWS','POPULAR','PARTY','STUDY','MACHINE','MAIL','MESSAGE','PROMISE','DREAM','KINDERGARTEN','LIFE','RADIO','RENTAL','WORLD'];
 const HOBBIES = ['IDOL','ANIME','SONG','MOVIE','SWEETS','CHAT','CHILD\'S PLAY','TOYS','MUSIC','CARDS','SHOPPING','CAMERA','VIEWING','SPECTATOR','GOURMET','GAME','RPG','COLLECTION','COMPLETE','MAGAZINE','WALK','BIKE','HOBBY','SPORTS','SOFTWARE','SONGS','DIET','TREASURE','TRAVEL','DANCE','CHANNEL','MAKING','FISHING','DATE','DESIGN','LOCOMOTIVE','PLUSH DOLL','PC','FLOWERS','HERO','NAP','HEROINE','FASHION','ADVENTURE','BOARD','BALL','BOOK','FESTIVAL','COMICS','HOLIDAY','PLANS','TRENDY','VACATION','LOOK'];
 
+// Global so that we can re-display after a single run with a subset of seeds.
+var globalSeedsToTiles = {};
+
 
 function MatchInfo(firstWord, secondWord, extraFirstWord, extraSecondWord,
   lottoNumber, extraWordFirstDay, dryBattery, version) {
@@ -245,6 +248,7 @@ const SAPPHIRE = "S";
 const EMERALD = "E";
 
 function findTiles(){
+	globalSeedsToTiles = {};
 	var tidElement = document.getElementById("trainer-id");
 	try {
 		var tid = parseInt(tidElement.value);
@@ -334,6 +338,7 @@ function findTiles(){
 	
 	// And write the list at the end, for easier debugging.
 	writeTiles(seedToTiles);
+	globalSeedsToTiles = seedToTiles;
 }
 
 function Row(start, row, column) {
@@ -436,6 +441,7 @@ function getCoordinatesForTile(tile) {
 
 function showTiles(tiles) {
 	const ctx = document.getElementById("canvas").getContext("2d");
+	ctx.clearRect(0, 0, 544, 1201);
 	const img = new Image();
 	img.src = "route.png";
 	img.onload = () => {
@@ -461,11 +467,114 @@ function writeTiles(seedToTiles) {
 	listElement.innerHTML = "";
 	for (seed in seedToTiles) {
 		var line = document.createElement("li");
-		var words = seed.toString(16) + ": ";
+		var check = document.createElement("input");
+		check.type = "checkbox";
+		check.id = seed.toString();
+		check.checked = true;
+		check.addEventListener("click", updateTiles);
+		line.appendChild(check);
+		var words = seed.toString() + ": ";
 		for (tile of seedToTiles[seed]) {
 			words += tile.toString() + ", ";
 		}
-		line.innerHTML = words;
+		line.append(words);
 		listElement.appendChild(line);
 	}
+}
+
+function getTileFromCoordiante(x, y) {
+	var gridX = Math.floor(x / tileSize);
+	var gridY = Math.floor(y / tileSize);
+	for (var i = 0; i < rows.length; i++) {
+		if (rows[i].row != gridY) {
+			continue;
+		}
+		if (gridX < rows[i].column) {
+			continue;
+		}
+		var index = gridX - rows[i].column + rows[i].start;
+		// Look ahead 1 row, to verify that this index makes sense.
+		if (rows[i+1] && rows[i+1].start <= index) {
+			// This one is invalid, but there may be another that is.
+			continue;
+		}
+		return index;
+	}
+	// Default case, this will get filtered out as a failure.
+	return 0;
+}
+
+// TODO: I should also have a "Reset All" button that rechecks everything
+// in fid-list.  Pressing "Find Tiles" is a workaround for now, albeit
+// somewhat inefficient.
+function updateTiles(ev) {
+	if (ev === undefined) {
+		return;
+	}
+	// Step 1: get all checked seeds.
+	var toDisplay = {};
+	var fidList = document.getElementById("fid-list");
+	for (seedEl of fidList.children) {
+		var cb = seedEl.children[0];
+		if (!cb.checked) {
+			continue;
+		}
+		var seed = cb.id;
+		// If global seeds doesn't have this (for some reason), add
+		// an empty list to make display code a bit easier.
+		toDisplay[seed] = globalSeedsToTiles[seed] || [];
+	}
+	// Step 2: if it was a click on the canvas, find which seeds to add/remove.	
+	if (ev.target.id == "canvas") {
+		// Step 2.1: get the x,y coordinates of the click.
+		var bbox = ev.target.getBoundingClientRect();
+		var x = ev.clientX - bbox.left;
+		var y = ev.clientY - bbox.top;
+		// Does this make sense? No. But I'm paranoid.
+		if (x > ev.target.width || y > ev.target.height) {
+			// The click wasn't really in the canvas, so discard the input.
+			return;
+		}
+		// Step 2.2: translate the pixel coordinates to a tile index.
+		var tile = getTileFromCoordiante(x, y);
+		if (tile < 4 || tile > 447) {
+			// Not a valid tile, don't do anything.
+			return;
+		}
+		// Step 2.4: find all seeds that generate that tile.
+		var toChange = [];
+		for (seed in globalSeedsToTiles) {
+			if (globalSeedsToTiles[seed].has(tile)) {
+				toChange.push(seed);
+			}
+		}
+		if (toChange.length == 0) {
+			// Nothing to change;
+			return;
+		}
+		// Step 2.5: add/remove (as appropriate) those tiles for the display.
+		// Including checking or unchecking those elements in fid-list.
+		// TODO: what is appropriate?  For now, I'm going to set them to
+		// toggle whichever comes first in toChange.  But it may make more
+		// sense to e.g. always set them off, or set them off if any exist
+		// otherwise set them on.
+		var newState = !document.getElementById(toChange[0]).checked
+		for (seed of toChange) {
+			if (newState) {
+				toDisplay[seed] = globalSeedsToTiles[seed]
+			} else {
+				toDisplay[seed] = [];
+			}
+			document.getElementById(seed).checked = newState;
+		}
+	}
+	// Step 3, redisplay the new set of seeds.
+	var tiles = new Set();
+	for (seed in toDisplay) {
+		for (tile of toDisplay[seed]) {
+			tiles.add(tile);
+		}
+	}
+	// No need to update fid-list.  We want the unchecked boxes to remain.
+	showTiles(tiles);
 }
