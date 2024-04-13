@@ -5,6 +5,23 @@ const HOBBIES = ['IDOL','ANIME','SONG','MOVIE','SWEETS','CHAT','CHILD\'S PLAY','
 // Global so that we can re-display after a single run with a subset of seeds.
 var globalSeedsToTiles = {};
 
+// Prepares any "dynamic" content.  Currently, only the datalists for an easier
+// time typing trendy phrases.
+function onLoad() {
+	var firstWordDatalist = document.getElementById("first-word-datalist");
+	addAllAsOptions(CONDITIONS, firstWordDatalist);
+	var secondWordDatalist = document.getElementById("second-word-datalist");
+	addAllAsOptions(LIFESTYLE, secondWordDatalist);
+	addAllAsOptions(HOBBIES, secondWordDatalist);
+}
+
+function addAllAsOptions(list, el) {
+	for (word of list) {
+		var opt = document.createElement("option");
+		opt.value = word;
+		el.appendChild(opt);
+	}
+}
 
 function MatchInfo(firstWord, secondWord, extraFirstWord, extraSecondWord,
   lottoNumber, extraWordFirstDay, dryBattery, version) {
@@ -114,8 +131,10 @@ function candidatesMatch(candidates, matchInfo) {
 	}
 	// Generate random numbers to see if this lotto number would be
 	// generated nearby.
-	// TODO: Figure out if there's a precise timing we can use to make this
-	// more efficient.
+	// TODO: There may be a more precise way to match the lotto number, but
+	// it requires reimplementing the insertion sort the game uses to order
+	// candidates because on ties it advances rng, even though it doesn't use
+	// that rng to pick the order.
 	if (matchInfo.lottoNumber >= 0) {
 		var count = 0;
 		var seed = matchInfo.endSeed;
@@ -226,9 +245,6 @@ function findAllMatches(tid, matchInfo) {
 	// For each of the 2^16 seeds that could have generated the TID, generate
 	// the possible candidates for that seed, then collect fids that match
 	// the information gathered above.
-	// TODO: It should be possible to get a narrower set of starting seeds
-	// if we know the game started in a reasonable time from power on with a
-	// dry battery.  This should be offered as a feature to save compute time.
 	console.log("WET")
 	var topTID = (tid << 16)>>>0;
 	for (var i = 0; i < (1 << 16); i++) {
@@ -294,8 +310,6 @@ function findTiles(){
 		var trendyWordFourElement = document.getElementById("trendy-word4");
 		var trendyWord4 = trendyWordFourElement.value;
 	}
-	// TODO: I'd rather make these a drop down or have some other way to do the
-	// validation outside of this.
 	if (CONDITIONS.indexOf(trendyWord1.toUpperCase()) < 0) {
 		console.log("Trendy Word 1 not in Conditions list");
 		return;
@@ -482,6 +496,7 @@ function writeTiles(seedToTiles) {
 	}
 }
 
+// x and y are the pixel coordinates of a click on the canvas.
 function getTileFromCoordiante(x, y) {
 	var gridX = Math.floor(x / tileSize);
 	var gridY = Math.floor(y / tileSize);
