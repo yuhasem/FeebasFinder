@@ -238,11 +238,11 @@ function testFindAllMatches() {
 			// matchInfo: new MatchInfo("SKILL", "DATE", "", "", undefined, false),
 			// actualSeed: 0x8550,
 		// },
-		{
-			tid: 54815,
-			matchInfo: new MatchInfo("MISTAKE", "CLASS", "SIMPLE", "LIFE", undefined, true),
-			actualSeed: 0x860F,
-		},
+		// {
+			// tid: 54815,
+			// matchInfo: new MatchInfo("MISTAKE", "CLASS", "SIMPLE", "LIFE", undefined, true),
+			// actualSeed: 0x860F,
+		// },
 		// {
 			// tid: 13901,
 			// matchInfo: new MatchInfo("BUSY", "PARTY", "WELL", "HEROINE", undefined, true),

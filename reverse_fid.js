@@ -4,6 +4,7 @@ const HOBBIES = ['IDOL','ANIME','SONG','MOVIE','SWEETS','CHAT','CHILD\'S PLAY','
 
 // Global so that we can re-display after a single run with a subset of seeds.
 var globalSeedsToTiles = {};
+var globalMatches = {};
 
 // Prepares any "dynamic" content.  Currently, only the datalists for an easier
 // time typing trendy phrases.
@@ -277,6 +278,7 @@ const EMERALD = "E";
 
 function findTiles(){
 	globalSeedsToTiles = {};
+	globalMatches = {};
 	var tidElement = document.getElementById("trainer-id");
 	try {
 		var tid = parseInt(tidElement.value);
@@ -349,12 +351,16 @@ function findTiles(){
 	
 	// Find the tiles for the possible fids.
 	var seedToTiles = {};
-	var allTiles = new Set();
+	var allTiles = {};
 	for (var fid in matches) {
 		var tiles = getTilesFromSeed(fid);
 		seedToTiles[fid] = tiles;
 		for (tile of tiles) {
-			allTiles.add(tile);
+			if (allTiles[tile]) {
+				allTiles[tile] += matches[fid];
+			} else {
+				allTiles[tile] = matches[fid];
+			}
 		}
 	}
 	// console.log(allTiles);
@@ -365,6 +371,7 @@ function findTiles(){
 	// And write the list at the end, for easier debugging.
 	writeTiles(seedToTiles);
 	globalSeedsToTiles = seedToTiles;
+	globalMatches = matches;
 }
 
 function Row(start, row, column) {
@@ -466,17 +473,29 @@ function getCoordinatesForTile(tile) {
 }
 
 function showTiles(tiles) {
+	var min = 100000;
+	var max = 0;
+	for (tile in tiles) {
+		if (tiles[tile] < min) {
+			min = tiles[tile];
+		}
+		if (tiles[tile] > max) {
+			max = tiles[tile];
+		}
+	}
+	if (min > max) { min = max; }
+
 	const ctx = document.getElementById("canvas").getContext("2d");
 	ctx.clearRect(0, 0, 544, 1201);
 	const img = new Image();
 	img.src = "route.png";
 	img.onload = () => {
 		ctx.drawImage(img, 0, 0);
-		for (tile of tiles) {
-			// black outline with white fill.
+		for (tile in tiles) {
+			// black outline with gradient fill.
 			// TODO: maybe choose different colors for the different seeds?
 			ctx.strokeStyle = "#000000";
-			ctx.fillStyle = "#FFFFFF";
+			ctx.fillStyle = gradientColor(tiles[tile], min, max);
 			ctx.beginPath();
 			var coord = getCoordinatesForTile(tile);
 			var x = tileSize/2 + tileSize*coord.x;
@@ -485,6 +504,24 @@ function showTiles(tiles) {
 			ctx.fill();
 		}
 	}
+}
+
+function gradientColor(val, min, max) {
+	// TODO: make min and max color pickable?  for accessiblity.
+	// TODO: consider gradient through hue instead of rgb.
+	var mid = (max + min)/2;
+	var red = 255;
+	if (val > mid) {
+		red -= Math.floor(255*(val - mid)/(max - mid));
+	}
+	var green = 255;
+	if (val < mid) {
+		green -= Math.floor(255*(mid - val)/(mid - min));
+	}
+	return `rgb(
+		${red},
+		${green},
+		0)`
 }
 
 function writeTiles(seedToTiles) {
@@ -596,10 +633,14 @@ function updateTiles(ev) {
 		}
 	}
 	// Step 3, redisplay the new set of seeds.
-	var tiles = new Set();
+	var tiles = {};
 	for (seed in toDisplay) {
 		for (tile of toDisplay[seed]) {
-			tiles.add(tile);
+			if (tiles[tile]) {
+				tiles[tile] += globalMatches[seed];
+			} else {
+				tiles[tile] = globalMatches[seed];
+			}
 		}
 	}
 	// No need to update fid-list.  We want the unchecked boxes to remain.
