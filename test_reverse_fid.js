@@ -238,11 +238,11 @@ function testFindAllMatches() {
 			// matchInfo: new MatchInfo("SKILL", "DATE", "", "", undefined, false),
 			// actualSeed: 0x8550,
 		// },
-		// {
-			// tid: 54815,
-			// matchInfo: new MatchInfo("MISTAKE", "CLASS", "SIMPLE", "LIFE", undefined, true),
-			// actualSeed: 0x860F,
-		// },
+		{
+			tid: 54815,
+			matchInfo: new MatchInfo("MISTAKE", "CLASS", "SIMPLE", "LIFE", undefined, true),
+			actualSeed: 0x860F,
+		},
 		// {
 			// tid: 13901,
 			// matchInfo: new MatchInfo("BUSY", "PARTY", "WELL", "HEROINE", undefined, true),
@@ -291,7 +291,7 @@ function testFindAllMatches() {
 	];
 	for (var c of cases) {
 		var got = findAllMatches(c.tid, c.matchInfo)
-		if (!got.has(c.actualSeed)) {
+		if (!got[c.actualSeed]) {
 			console.log("findAllMatches(" + c.tid + ", " + c.matchInfo + ") = " + got + ", wanted it to contain " + c.actualSeed);
 		}
 	}

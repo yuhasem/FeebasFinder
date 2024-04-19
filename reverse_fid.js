@@ -132,7 +132,7 @@ function candidatesMatch(candidates, matchInfo) {
 	// Generate random numbers to see if this lotto number would be
 	// generated nearby.
 	// TODO: There may be a more precise way to match the lotto number, but
-	// it requires reimplementing the insertion sort the game uses to order
+	// it requires reimplementing the bubble sort the game uses to order
 	// candidates because on ties it advances rng, even though it doesn't use
 	// that rng to pick the order.
 	if (matchInfo.lottoNumber >= 0) {
@@ -195,21 +195,25 @@ function* candidatesAt(seed) {
 }
 
 function findMatchesForSeed(seed, matchInfo) {
-	var matches = new Set();
+	var matches = {};
 	for (candidates of candidatesAt(seed)) {
 		matchInfo.endSeed = candidates.seed;
 		var fid = candidatesMatch(candidates.candidates, matchInfo);
 		if (fid >= 0) {
 			// console.log("match from seed " + seed);
 			// console.log(candidates.candidates);
-			matches.add(fid);
+			if (matches[fid]) {
+				matches[fid]++;
+			} else {
+				matches[fid] = 1;
+			}
 		}
 	}
 	return matches;
 }
 
 function findAllMatches(tid, matchInfo) {
-	var matches = new Set();
+	var matches = {};
 	// When the battery is dry, there's a much smaller set of seeds that we
 	// have to check, assuming you go through the opening fairly quickly.
 	// TODO: tune the amount of leeway given by the seed search?  Possibly
@@ -219,8 +223,6 @@ function findAllMatches(tid, matchInfo) {
 		var seedList = [];
 		switch (matchInfo.version) {
 			case RUBY:
-			seedList = RS_SEEDS[tid];
-			break;
 			case SAPPHIRE:
 			seedList = RS_SEEDS[tid];
 			break;
@@ -230,11 +232,16 @@ function findAllMatches(tid, matchInfo) {
 		}
 		if (seedList.length > 0) {
 			for (seed of seedList) {
-				for (match of findMatchesForSeed(seed, matchInfo)) {
-					matches.add(match);
+				var newMatches = findMatchesForSeed(seed, matchInfo);
+				for (match in newMatches) {
+					if (matches[match]) {
+						matches[match] += newMatches[match]
+					} else {
+						matches[match] = newMatches[match]
+					}
 				}
 			}
-			if (matches.size > 0) {
+			if (Object.keys(matches).length) {
 				return matches;
 			}
 		}
@@ -251,8 +258,13 @@ function findAllMatches(tid, matchInfo) {
 		// TODO: progress bar?
 		// console.log(i);
 		var seed = topTID + i;
-		for (match of findMatchesForSeed(seed, matchInfo)) {
-			matches.add(match);
+		var newMatches = findMatchesForSeed(seed, matchInfo);
+		for (match in newMatches) {
+			if (matches[match]) {
+				matches[match] += newMatches[match]
+			} else {
+				matches[match] = newMatches[match]
+			}
 		}
 	}
 	return matches
@@ -338,7 +350,7 @@ function findTiles(){
 	// Find the tiles for the possible fids.
 	var seedToTiles = {};
 	var allTiles = new Set();
-	for (var fid of matches) {
+	for (var fid in matches) {
 		var tiles = getTilesFromSeed(fid);
 		seedToTiles[fid] = tiles;
 		for (tile of tiles) {
