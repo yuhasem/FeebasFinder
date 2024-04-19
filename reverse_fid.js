@@ -493,7 +493,6 @@ function showTiles(tiles) {
 		ctx.drawImage(img, 0, 0);
 		for (tile in tiles) {
 			// black outline with gradient fill.
-			// TODO: maybe choose different colors for the different seeds?
 			ctx.strokeStyle = "#000000";
 			ctx.fillStyle = gradientColor(tiles[tile], min, max);
 			ctx.beginPath();
@@ -618,11 +617,12 @@ function updateTiles(ev) {
 		}
 		// Step 2.5: add/remove (as appropriate) those tiles for the display.
 		// Including checking or unchecking those elements in fid-list.
-		// TODO: what is appropriate?  For now, I'm going to set them to
-		// toggle whichever comes first in toChange.  But it may make more
-		// sense to e.g. always set them off, or set them off if any exist
-		// otherwise set them on.
-		var newState = !document.getElementById(toChange[0]).checked
+		// TODO: what is appropriate?  I think this is the most intuitive: If
+		// any are checked (the tile has a dot on it), set them all to off.
+		// Otherwise (the tile has no dot), turn all seeds on.
+		// It's not perfect because double clicking doesn't get you back to
+		// even, but it's close enough and makes sense for the primary use case.
+		var newState = !anyChecked(toChange);
 		for (seed of toChange) {
 			if (newState) {
 				toDisplay[seed] = globalSeedsToTiles[seed]
@@ -645,4 +645,13 @@ function updateTiles(ev) {
 	}
 	// No need to update fid-list.  We want the unchecked boxes to remain.
 	showTiles(tiles);
+}
+
+function anyChecked(ls) {
+	for (var i = 0; i < ls.length; i++) {
+		if (document.getElementById(ls[i]).checked) {
+			return true;
+		}
+	}
+	return false;
 }
