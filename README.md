@@ -1,7 +1,6 @@
 # FeebasFinder
 
-A tool to find which tiles you can get Feebas from in Ruby and Sapphire.
-(Emerald planned, but not ready.)
+A tool to find which tiles you can get Feebas from in Ruby/Sapphire/Emerald.
 
 [Click here to go the tool](https://yuhasem.github.io/FeebasFinder/)
 
@@ -11,16 +10,18 @@ did have Feebas, and bonus points if you recorded inputs so the exact RNG
 during the opening of the game can be replayed).  This should work on hardware,
 but has not been tested for it yet.
 
-When using a dry battery, results should be returned quickly unless you played
-the start of the game very slow.
+For Ruby and Sapphire with a dry battery, results should be returned quickly
+unless you played the start of the game very slow.
 
 When using wet battery or where dry battery had to fall back because it
 couldn't match your starting RNG seed, results will take 1-2 minutes to return.
 With no second phrase, there will also be 60 or more Feebas seeds which might
 narrow down only half the river.  Some seeds are more likely than others, and
-a planned improvement is to show this likelihood.
+they are displayed in a green color so you can target them first.
 
 ## How does it work?
+
+### Ruby/Sapphire
 
 At the start of the game, just after the character shrinking animation, the
 game sets Trainer ID (TID), Secret ID (SID), the Feebas seed (FID), and the
@@ -28,6 +29,16 @@ Trendy Phrase.
 
 TID and SID are straight forward.  They are copied directly from 2 back to back
 RNG calls.
+
+### Emerald
+
+TID is set set just after naming your character, and RNG is set to the TID as
+well.  Just after the character shrinking animation, the game sets SID and
+Feebas Seed (FID).
+
+### FID
+
+FID and Trendy phrase are set the same way for Ruby, Sapphire, and Emerald.
 
 To set FID and Trendy Phrase, the game first generates 5 pairs of FID and
 Trendy Phrases, coupled with an extra 16 bits of "comparator" data.
