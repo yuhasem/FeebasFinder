@@ -268,25 +268,30 @@ function testFindAllMatches() {
 			// matchInfo: new MatchInfo("EXPENSIVE", "MUSIC", "LATE", "TEST", undefined, true),
 			// actualSeed: 0x53EF,
 		// },
+		// {
+			// tid: 63617,
+			// matchInfo: new MatchInfo("WELL", "HOBBY", "", "", undefined, false, true, "R"),
+			// actualSeed: 0xC39C,
+		// },
+		// {
+			// tid: 43620,
+			// matchInfo: new MatchInfo("MOMENTUM", "ALLOWANCE", "", "", undefined, false, true, "R"),
+			// actualSeed: 0x854A,
+		// },
+		// {
+			// tid: 41633,
+			// matchInfo: new MatchInfo("BUSY", "KINDERGARTEN", "", "", undefined, false, true, "R"),
+			// actualSeed: 0xADF0,
+		// },
+		// {
+			// tid: 10570,
+			// matchInfo: new MatchInfo("MUCH", "MAKING", "", "", undefined, false, true, "S"),
+			// actualSeed: 0x3B7,
+		// },
 		{
-			tid: 63617,
-			matchInfo: new MatchInfo("WELL", "HOBBY", "", "", undefined, false, true, "R"),
-			actualSeed: 0xC39C,
-		},
-		{
-			tid: 43620,
-			matchInfo: new MatchInfo("MOMENTUM", "ALLOWANCE", "", "", undefined, false, true, "R"),
-			actualSeed: 0x854A,
-		},
-		{
-			tid: 41633,
-			matchInfo: new MatchInfo("BUSY", "KINDERGARTEN", "", "", undefined, false, true, "R"),
-			actualSeed: 0xADF0,
-		},
-		{
-			tid: 10570,
-			matchInfo: new MatchInfo("MUCH", "MAKING", "", "", undefined, false, true, "S"),
-			actualSeed: 0x3B7,
+			tid: 25297,
+			matchInfo: new MatchInfo("SKILL", "INFORMATION", "", "", undefined, false, false, "E"),
+			actualSeed: 0xF0F6,
 		},
 	];
 	for (var c of cases) {

@@ -160,7 +160,8 @@ function memoKey(seed, inject) {
 // The given seed should be the RNG that the Trainer ID came from.
 // Yields lists of candidates that can be generated from the given seed.
 function* candidatesAt(seed) {
-	// Advance 1 for SID, 1 for frame advance.
+	// R/S: seed is just after TID set, advance 1 for SID, 1 for frame advance.
+	// E: seed is just after SID set, 2 frame advances.
 	seed = advanceRng(seed, 2)>>>0;
 	
 	// There are 45 possible places a VBlank RNG advancement could be injected.
@@ -215,6 +216,27 @@ function findMatchesForSeed(seed, matchInfo) {
 
 function findAllMatches(tid, matchInfo) {
 	var matches = {};
+	// For Emerald, TID is the starting seed, but with a variable gap (player
+	// input) between it and the candidates generation.
+	// TODO: offer SID as an option?  RNG position can be none precisely, but
+	// it's somewhat contrary to finding Feebas with only "public" information.
+	if (matchInfo.version === EMERALD) {
+		var seed = tid;
+		seed = advanceRng(seed, 680)>>>0;
+		// 10 seconds of additional time over perfect inputs.
+		for (var i = 0; i < 10*60; i++) {
+			seed = advanceRng(seed, 1)>>>0;
+			var newMatches = findMatchesForSeed(seed, matchInfo);
+			for (match in newMatches) {
+				if (matches[match]) {
+					matches[match] += newMatches[match]
+				} else {
+					matches[match] = newMatches[match]
+				}
+			}
+		}
+		return matches;
+	}
 	// When the battery is dry, there's a much smaller set of seeds that we
 	// have to check, assuming you go through the opening fairly quickly.
 	// TODO: tune the amount of leeway given by the seed search?  Possibly
@@ -299,25 +321,29 @@ function findTiles(){
 	var trendyWord2 = trendyWordTwoElement.value;
 
 	var version = UNKNOWN_VERSION;
+	versionInputs = document.getElementsByName("game-version");
+	for (v of versionInputs) {
+		if (v.checked) {
+			switch (v.id) {
+				case "ruby":
+				version = RUBY;
+				break;
+				case "sapphire":
+				version = SAPPHIRE;
+				break;
+				case "emerald":
+				version = EMERALD;
+				break;
+				default:
+				version = UNKNOWN_VERSION;
+			}
+		}
+	}
+
 	if (dryBattery) {
 		// Explicitly set these to empty so they don't interfere with anything.
 		trendyWord3 = "";
 		trendyWord4 = "";
-		versionInputs = document.getElementsByName("game-version");
-		for (v of versionInputs) {
-			if (v.checked) {
-				switch (v.id) {
-					case "ruby":
-					version = RUBY;
-					break;
-					case "sapphire":
-					version = SAPPHIRE;
-					break;
-					default:
-					version = UNKNOWN_VERSION;
-				}
-			}
-		}
 	} else {
 		var trendyWordThreeElement = document.getElementById("trendy-word3");
 		var trendyWord3 = trendyWordThreeElement.value;
@@ -374,6 +400,10 @@ function findTiles(){
 	globalMatches = matches;
 }
 
+
+////////////////////////////
+// DISPLAY FUNCTIONS HERE //
+////////////////////////////
 function Row(start, row, column) {
 	// `start` is the tile index at the start of this row.
 	this.start = start;
